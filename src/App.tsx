@@ -1,11 +1,16 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import WorkshopCard from "./components/WorkshopCard";
+import QuestionDialog from "./components/QuestionDialog";
 import { workshops, type Workshop } from "./workshops";
+import { requestOptions, type RequestValues } from "./requests";
 
 export default function App() {
   const [query, setQuery] = useState("");
   const [notice, setNotice] = useState("");
   const [bookingCount, setBookingCount] = useState(0);
+  const [questionWorkshop, setQuestionWorkshop] = useState<Workshop | null>(null);
+  const [confirmation, setConfirmation] = useState("");
+  const lastTriggerRef = useRef<HTMLButtonElement | null>(null);
   const normalized = query.trim().toLocaleLowerCase("fr");
   const visible = workshops.filter(workshop =>
     `${workshop.title} ${workshop.location}`.toLocaleLowerCase("fr").includes(normalized),
@@ -16,6 +21,27 @@ export default function App() {
     const next = bookingCount + 1;
     setBookingCount(next);
     setNotice(`Préinscription de démonstration n° ${next} enregistrée pour ${workshop.title}. Aucun paiement ni réservation réelle.`);
+  };
+
+  const openQuestion = (workshop: Workshop, trigger: HTMLButtonElement) => {
+    lastTriggerRef.current = trigger;
+    setConfirmation("");
+    setQuestionWorkshop(workshop);
+  };
+
+  const closeQuestion = () => {
+    setQuestionWorkshop(null);
+    lastTriggerRef.current?.focus();
+  };
+
+  const submitQuestion = (values: RequestValues) => {
+    const workshop = questionWorkshop;
+    const subject = requestOptions.question.find(option => option.value === values.choice)?.label ?? values.choice;
+    setQuestionWorkshop(null);
+    if (workshop) {
+      setConfirmation(`Votre question sur l’atelier « ${workshop.title} » au sujet de « ${subject} » a été transmise à l’organisateur. Aucun envoi réel.`);
+    }
+    lastTriggerRef.current?.focus();
   };
 
   return (
@@ -42,7 +68,22 @@ export default function App() {
           </div>
           {visible.length > 0 ? (
             <div className="workshop-grid">
-              {visible.map(workshop => <WorkshopCard key={workshop.id} workshop={workshop} onReserve={reserve} />)}
+              {visible.map(workshop => (
+                <WorkshopCard
+                  key={workshop.id}
+                  workshop={workshop}
+                  onReserve={reserve}
+                  extraAction={
+                    <button
+                      type="button"
+                      className="ghost-button"
+                      onClick={event => openQuestion(workshop, event.currentTarget)}
+                    >
+                      Poser une question sur {workshop.title}
+                    </button>
+                  }
+                />
+              ))}
             </div>
           ) : <p className="empty-state">Aucun atelier ne correspond. Essayez un autre titre ou une autre ville.</p>}
         </section>
@@ -52,8 +93,12 @@ export default function App() {
         </section>
         <div className="registration-result">
           <p className={notice ? "notice" : "notice-empty"}>{notice}</p>
+          <p role="status" aria-live="polite" aria-label="Confirmation de la demande" className={confirmation ? "notice" : "notice-empty"}>{confirmation}</p>
         </div>
       </main>
+      {questionWorkshop && (
+        <QuestionDialog workshop={questionWorkshop} onClose={closeQuestion} onSubmit={submitQuestion} />
+      )}
       <footer><a className="brand" href="#accueil">Atelier<span>Local</span></a><p>Application pédagogique · Aucun envoi ni paiement réel.</p></footer>
     </>
   );

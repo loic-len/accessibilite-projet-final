@@ -10,8 +10,9 @@ type Props = {
 export default function WorkshopCard({ workshop, onReserve, extraAction }: Props) {
   const [expanded, setExpanded] = useState(false);
   const panelId = `details-${workshop.id}`;
+  const titleId = `title-${workshop.id}`;
   return (
-    <article className="workshop-card">
+    <article className="workshop-card" aria-labelledby={titleId}>
       <div className="card-art">
         {workshop.id === "serigraphie"
           ? <img src={workshop.image} />
@@ -20,7 +21,7 @@ export default function WorkshopCard({ workshop, onReserve, extraAction }: Props
       </div>
       <div className="card-body">
         <p className="workshop-date">{workshop.date}</p>
-        <h3 className="workshop-title">{workshop.title}</h3>
+        <h3 className="workshop-title" id={titleId}>{workshop.title}</h3>
         <p className="location">{workshop.location}</p>
         <div className="card-meta"><span>{workshop.duration}</span><span>{workshop.price}</span></div>
         <p className="availability">

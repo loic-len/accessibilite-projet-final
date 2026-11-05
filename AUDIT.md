@@ -181,8 +181,20 @@ Vérification (NVDA + Chrome, Windows) : la navigation par titres atteint désor
 
 ## Composant créé
 
-Expliquez vos principaux choix d'accessibilité et les manipulations réalisées pour les vérifier.
+Le composant `QuestionDialog` (`src/components/QuestionDialog.tsx`) ajoute, sur chaque carte, un bouton « Poser une question » intégré via la prop `extraAction` de `WorkshopCard`. L'atelier concerné est transmis par l'état d'`App` et rappelé dans le titre de la modale, ce qui garantit la prise en compte du bon atelier. Le bouton est présent même lorsque l'atelier est complet.
+
+Principaux choix d'accessibilité :
+
+- **Élément natif `<dialog>` ouvert avec `showModal()`** : on bénéficie gratuitement du rôle `dialog`, de `aria-modal`, du piège de focus, de la fermeture par Échap et de l'arrière-plan inerte. La modale a un nom accessible via `aria-labelledby` pointant vers son `<h2>`.
+- **Gestion du focus** : à l'ouverture, le focus entre dans la modale ; à la fermeture (envoi, Annuler, bouton ×, Échap), le focus est rendu au bouton déclencheur mémorisé, pour ne pas perdre la personne qui navigue au clavier.
+- **Contrôle du sujet par `<select>` natif** : la première option `value=""` (« Choisissez un sujet ») est sélectionnée par défaut, donc aucun sujet n'est présélectionné. Les options correspondent à `requestOptions.question`.
+- **Champs obligatoires et reprise après erreur** : la validation s'appuie sur `readRequest(form, "question", workshop.id)`. L'email est un `input type="email"`. En cas d'erreur, chaque champ reçoit `aria-invalid`, un message `.field-error` associé par `aria-describedby`, et un résumé d'erreurs `.error-summary` focusable (déplacement du focus dessus) liste les problèmes avec des liens vers les champs. Le formulaire étant non contrôlé, le sujet et la question saisis sont conservés après une tentative échouée : on peut corriger et renvoyer.
+- **Confirmation compréhensible** : après un envoi valide, la modale se ferme et un message dans un conteneur `role="status"` / `aria-live="polite"` annonce **l'atelier concerné et le sujet choisi**, sans reprendre l'adresse de contact. Annuler ou fermer ne déclenche aucune confirmation.
+
+Vérifications : navigation complète au clavier (ouverture, Tab dans la modale, Échap, retour du focus) ; essais d'envoi incomplet puis corrigé ; contrôle de l'arbre d'accessibilité dans Chrome DevTools ; contrôle automatique avec jest-axe (aucune violation, modale ouverte avec erreurs affichées).
 
 ## Mini-test
 
-Indiquez le fichier, le résultat et ce que le test permet de vérifier.
+Fichier : `src/__tests__/Composant.test.tsx`. Résultat : le test passe (`npm test -- --run` → 4 tests au vert).
+
+Le test rend l'application avec `render(<App />)` et simule le parcours avec `userEvent` : ouverture de « Poser une question » pour « Une tasse en céramique », choix du sujet « Le matériel à apporter » et saisie d'une question, envoi avec l'email vide. Il vérifie alors qu'une erreur est indiquée, que la modale reste ouverte, que le sujet et la question sont conservés et qu'aucune confirmation n'apparaît. Après saisie d'un email valide et nouvel envoi, il vérifie que la modale se ferme et qu'une confirmation mentionne bien « Une tasse en céramique » et « Le matériel à apporter ». Le test couvre donc l'intégration, la validation et la reprise après erreur, et la cohérence de la confirmation.

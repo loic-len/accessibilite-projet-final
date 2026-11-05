@@ -4,3 +4,6 @@
 .details-trigger:focus-visible{outline:3px solid #4338a8;outline-offset:1px;border-radius:3px}
 .details-inner{padding-left:4px;margin-left:-4px}
 .details-inner a:focus-visible{outline:3px solid #4338a8;outline-offset:2px;border-radius:3px}
+.ghost-button{width:100%;background:#fff;color:#183c35;border:1px solid #183c35;border-radius:5px;padding:12px 10px;font-size:13px;font-weight:700;line-height:1.4}
+.ghost-button:hover{background:#f0efe8}
+.dialog-close{background:none;border:none;font-size:26px;line-height:1;color:#183c35;padding:0 4px;cursor:pointer}
