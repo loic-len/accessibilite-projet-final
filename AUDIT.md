@@ -67,9 +67,9 @@ Le champ de recherche doit avoir une étiquette programmatiquement associée, an
 
 ### Correction à apporter
 
-- Remplacer le `<p class="search-label">` par un `<label for="workshop-search">` (ou ajouter `aria-labelledby` sur l'input).
+- Remplacer le `<p class="search-label">` par un `<label for="workshop-search">`
 - Ajouter `aria-describedby` sur l'input pour associer le texte d'aide.
-- Supprimer `aria-label` du compteur de résultats pour que le texte visible (« 3 ateliers ») serve de nom accessible, ou remplacer par un `aria-label` qui inclut le nombre dynamique.
+- Remplacer par un `aria-label` qui inclut le nombre dynamique.
 
 
 ---
@@ -144,7 +144,7 @@ Le résultat de la préinscription doit être annoncé automatiquement après l'
 
 ### Correction à apporter
 
-Ajouter `role="status"` sur le conteneur du message de confirmation pour que son apparition soit annoncée automatiquement aux lecteurs d'écran. Déplacer le focus vers le message après l'action, ou rapprocher le message du bouton, pour que la personne qui navigue au clavier comprenne que quelque chose s'est passé.
+Ajouter `role="status"` sur le conteneur du message de confirmation pour que son apparition soit annoncée automatiquement aux lecteurs d'écran. Déplacer le focus vers le message après l'action pour que la personne qui navigue au clavier comprenne que quelque chose s'est passé.
 
 
 ---

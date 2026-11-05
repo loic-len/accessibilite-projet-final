@@ -11,6 +11,8 @@ export default function App() {
   const [questionWorkshop, setQuestionWorkshop] = useState<Workshop | null>(null);
   const [confirmation, setConfirmation] = useState("");
   const lastTriggerRef = useRef<HTMLButtonElement | null>(null);
+  const noticeRef = useRef<HTMLParagraphElement | null>(null);
+  const confirmationRef = useRef<HTMLParagraphElement | null>(null);
   const normalized = query.trim().toLocaleLowerCase("fr");
   const visible = workshops.filter(workshop =>
     `${workshop.title} ${workshop.location}`.toLocaleLowerCase("fr").includes(normalized),
@@ -21,6 +23,7 @@ export default function App() {
     const next = bookingCount + 1;
     setBookingCount(next);
     setNotice(`Préinscription de démonstration n° ${next} enregistrée pour ${workshop.title}. Aucun paiement ni réservation réelle.`);
+    requestAnimationFrame(() => noticeRef.current?.focus());
   };
 
   const openQuestion = (workshop: Workshop, trigger: HTMLButtonElement) => {
@@ -39,9 +42,11 @@ export default function App() {
     const subject = requestOptions.question.find(option => option.value === values.choice)?.label ?? values.choice;
     setQuestionWorkshop(null);
     if (workshop) {
-      setConfirmation(`Votre question sur l’atelier « ${workshop.title} » au sujet de « ${subject} » a été transmise à l’organisateur. Aucun envoi réel.`);
+      setConfirmation(`Votre question sur l'atelier « ${workshop.title} » au sujet de « ${subject} » a été transmise à l'organisateur. Aucun envoi réel.`);
+      requestAnimationFrame(() => confirmationRef.current?.focus());
+    } else {
+      lastTriggerRef.current?.focus();
     }
-    lastTriggerRef.current?.focus();
   };
 
   return (
@@ -55,16 +60,16 @@ export default function App() {
         <section className="hero" aria-labelledby="page-title">
           <div className="eyebrow">Des savoir-faire à partager</div>
           <h1 id="page-title">Un atelier.<br /><em>De nouvelles idées.</em></h1>
-          <p>Créer de ses mains, découvrir un lieu et prendre le temps d’apprendre ensemble.</p>
+          <p>Créer de ses mains, découvrir un lieu et prendre le temps d'apprendre ensemble.</p>
           <a className="hero-link" href="#catalogue">Trouver mon prochain atelier <span aria-hidden="true">↗</span></a>
           <div className="hero-note">Lille & Roubaix · Petits groupes · Tous niveaux</div>
         </section>
         <section className="catalogue" id="catalogue" aria-labelledby="catalogue-title">
-          <div className="section-heading"><div><p className="eyebrow">Le programme</p><h2 id="catalogue-title">Les prochains ateliers</h2></div><span className="count" role="status" aria-label="Résultats de recherche" aria-atomic="true">{visible.length} atelier{visible.length > 1 ? "s" : ""}</span></div>
+          <div className="section-heading"><div><p className="eyebrow">Le programme</p><h2 id="catalogue-title">Les prochains ateliers</h2></div><span className="count" role="status" aria-label={`${visible.length} atelier${visible.length > 1 ? "s" : ""} trouvé${visible.length > 1 ? "s" : ""}`} aria-atomic="true">{visible.length} atelier{visible.length > 1 ? "s" : ""}</span></div>
           <div className="search-area">
-            <p className="search-label">Rechercher un atelier</p>
-            <input type="search" id="workshop-search" value={query} onChange={event => setQuery(event.target.value)} />
-            <p className="search-help">Saisissez un titre ou une ville.</p>
+            <label htmlFor="workshop-search" className="search-label">Rechercher un atelier</label>
+            <input type="search" id="workshop-search" value={query} onChange={event => setQuery(event.target.value)} aria-describedby="workshop-search-help" />
+            <p className="search-help" id="workshop-search-help">Saisissez un titre ou une ville.</p>
           </div>
           {visible.length > 0 ? (
             <div className="workshop-grid">
@@ -89,11 +94,11 @@ export default function App() {
         </section>
         <section className="how-it-works" id="infos-pratiques" aria-labelledby="how-title">
           <p className="eyebrow">À votre rythme</p><h2 id="how-title">Une découverte, simplement.</h2>
-          <div className="how-grid"><div><span>01</span><h3>Choisissez votre atelier</h3><p>Retrouvez le lieu, la durée et le tarif dans le programme.</p></div><div><span>02</span><h3>Préparez votre venue</h3><p>Consultez les détails pour savoir ce qui est fourni et ce qu’il faut apporter.</p></div><div><span>03</span><h3>Prenez le temps de créer</h3><p>Les ateliers présentés ici sont fictifs. Toutes les actions sont des démonstrations locales.</p></div></div>
+          <div className="how-grid"><div><span>01</span><h3>Choisissez votre atelier</h3><p>Retrouvez le lieu, la durée et le tarif dans le programme.</p></div><div><span>02</span><h3>Préparez votre venue</h3><p>Consultez les détails pour savoir ce qui est fourni et ce qu'il faut apporter.</p></div><div><span>03</span><h3>Prenez le temps de créer</h3><p>Les ateliers présentés ici sont fictifs. Toutes les actions sont des démonstrations locales.</p></div></div>
         </section>
         <div className="registration-result">
-          <p className={notice ? "notice" : "notice-empty"}>{notice}</p>
-          <p role="status" aria-live="polite" aria-label="Confirmation de la demande" className={confirmation ? "notice" : "notice-empty"}>{confirmation}</p>
+          <p ref={noticeRef} tabIndex={-1} role="status" aria-live="polite" aria-atomic="true" className={notice ? "notice" : "notice-empty"}>{notice}</p>
+          <p ref={confirmationRef} tabIndex={-1} role="status" aria-live="polite" className={confirmation ? "notice" : "notice-empty"}>{confirmation}</p>
         </div>
       </main>
       {questionWorkshop && (

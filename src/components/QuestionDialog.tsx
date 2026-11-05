@@ -20,6 +20,8 @@ export default function QuestionDialog({ workshop, onClose, onSubmit }: RequestD
 
   const handleClose = () => onClose();
 
+  const handleCancel = () => dialogRef.current?.close();
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const { values, errors: nextErrors } = readRequest(event.currentTarget, "question", workshop.id);
@@ -46,7 +48,7 @@ export default function QuestionDialog({ workshop, onClose, onSubmit }: RequestD
     <dialog ref={dialogRef} aria-labelledby={titleId} onClose={handleClose} className="question-dialog">
       <div className="dialog-heading">
         <h2 id={titleId}>Poser une question</h2>
-        <button type="button" className="dialog-close" onClick={onClose} aria-label="Fermer la fenêtre">
+        <button type="button" className="dialog-close" onClick={handleCancel} aria-label="Fermer la fenêtre">
           <span aria-hidden="true">×</span>
         </button>
       </div>
@@ -112,7 +114,7 @@ export default function QuestionDialog({ workshop, onClose, onSubmit }: RequestD
 
         <div className="dialog-actions">
           <button type="submit" className="reserve-button">Envoyer la question</button>
-          <button type="button" className="ghost-button" onClick={onClose}>Annuler</button>
+          <button type="button" className="ghost-button" onClick={handleCancel}>Annuler</button>
         </div>
       </form>
     </dialog>
