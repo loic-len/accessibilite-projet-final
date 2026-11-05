@@ -34,6 +34,16 @@ Le déclencheur doit être un véritable bouton, focusable et activable au clavi
 - Donner un `id` au panneau pour le lier au déclencheur.
 - Rendre le contenu du panneau non focusable lorsqu'il est replié : utiliser l'attribut `hidden` plutôt que `aria-hidden="true"` seul, ou conditionner le rendu du lien à l'état déplié.
 
+Correction effectuée (dans `src/components/WorkshopCard.tsx`) :
+
+- Le `<div className="details-trigger" onClick>` a été remplacé par un vrai `<button type="button" className="details-trigger">`, atteignable avec Tab et activable avec Entrée ou Espace.
+- Ajout de `aria-expanded={expanded}` : l'état replié/déplié est annoncé.
+- Ajout d'un identifiant unique par carte, `panelId = \`details-${workshop.id}\``, posé en `id` sur le panneau et référencé par `aria-controls={panelId}` sur le bouton.
+- Le panneau utilise `hidden={!expanded}` au lieu de `aria-hidden={!expanded}` : quand il est replié, son contenu (dont le lien « Consulter les informations pratiques ») est retiré de l'ordre de tabulation.
+- Le visuel est préservé. Un style de focus adapté (`.details-trigger:focus-visible`) a été ajouté dans `src/styles.css` pour que le contour épouse le bouton.
+
+Vérification (NVDA + Chrome, Windows) : le bouton est annoncé « Détails de l'atelier, bouton, réduit » puis « développé » après activation ; une fois le panneau replié, le lien n'est plus atteignable au clavier. Dans l'arbre d'accessibilité de DevTools, la propriété `expanded` bascule et `controls` pointe vers l'`id` du panneau.
+
 ---
 
 ## Problème 2 — Le champ de recherche n'a pas d'étiquette associée et les résultats ne sont pas correctement annoncés (parcours)
@@ -105,6 +115,11 @@ Le bouton « M'inscrire » doit afficher un indicateur de focus visible lorsqu'i
 
 Supprimer la règle `.reserve-button:focus-visible { outline: none; box-shadow: none; }` pour que le contour de focus global s'applique, ou la remplacer par une alternative de focus visible suffisamment contrastée.
 
+Correction effectuée : dans `src/styles.css`
+La règle `.reserve-button:focus-visible{outline:none;box-shadow:none}` a été supprimée. Le bouton « M'inscrire » hérite désormais du style de focus global appliqué à tous les éléments interactifs.
+
+Vérification (clavier, Chrome) : en tabulant jusqu'au bouton « M'inscrire », un contour bleu contrasté apparaît comme sur les autres éléments de la page.
+
 
 ---
 
@@ -157,6 +172,10 @@ Chaque carte d'atelier devrait avoir un titre HTML pour son nom. Le lecteur d'é
 
 Remplacer le `<p className="workshop-title">` par `<h3 className="workshop-title">`. Les styles existants s'appliquent déjà au sélecteur `.workshop-title`, le rendu visuel est préservé.
 
+Correction effectuée : dans `src/components/WorkshopCard.tsx`
+Le `<p className="workshop-title">` a été remplacé par `<h3 className="workshop-title">`. Le niveau `h3` s'insère logiquement sous les `h2` de section (« Les prochains ateliers »). Le sélecteur CSS `.workshop-title` s'appliquant indifféremment, le rendu visuel est inchangé. Le titre sert aussi de nom accessible à l'`<article>` de la carte.
+
+Vérification (NVDA + Chrome, Windows) : la navigation par titres atteint désormais chaque atelier, annoncé « …, titre niveau 3 ». Dans DevTools, les titres ont bien le rôle `heading` de niveau 3.
 
 ---
 
